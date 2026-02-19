@@ -1,57 +1,26 @@
 pipeline {
-    agent any
-
-    environment {
-        CI = 'true'
-    }
+    agent none
 
     stages {
-
-        stage('Install & Test') {
+        stage('Checkout') {
+            agent any
             steps {
-                sh '''
-                docker run --rm \
-                  -v $PWD:/app \
-                  -w /app \
-                  node:18 \
-                  sh -c "npm install && npm run test"
-                '''
+                deleteDir()
+                git branch: 'main',
+                    url: 'https://github.com/Kimmy213/react-todo-app.git'
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t kimmy2/todo-app:latest .'
-            }
-        }
-
-        stage('Login Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-cred',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+        stage('Build & Test') {
+            agent {
+                docker {
+                    image 'node:18'
                 }
             }
-        }
-
-        stage('Push Image') {
             steps {
-                sh 'docker push kimmy2/todo-app:latest'
+                sh 'npm install'
+                sh 'npm run test'
             }
         }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                docker stop todo-container || true
-                docker rm todo-container || true
-                docker run -d -p 3000:3000 --name todo-container kimmy2/todo-app:latest
-                '''
-            }
-        }
-
     }
 }
