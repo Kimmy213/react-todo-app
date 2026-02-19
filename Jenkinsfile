@@ -7,14 +7,15 @@ pipeline {
 
     stages {
 
-        stage('Install Dependencies') {
+        stage('Install & Test') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '-u root'
+                }
+            }
             steps {
                 sh 'npm install'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
                 sh 'npm run test'
             }
         }
