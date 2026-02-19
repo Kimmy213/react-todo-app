@@ -18,7 +18,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'npm install'
+                sh 'PUPPETEER_SKIP_DOWNLOAD=true npm install'
                 sh 'npm run test'
             }
         }
