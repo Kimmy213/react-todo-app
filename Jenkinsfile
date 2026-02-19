@@ -14,7 +14,7 @@ pipeline {
         stage('Build & Test') {
             agent {
                 docker {
-                    image 'node:18'
+                    image 'node:18-bullseye'
                 }
             }
             steps {
