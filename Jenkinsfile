@@ -8,15 +8,14 @@ pipeline {
     stages {
 
         stage('Install & Test') {
-            agent {
-                docker {
-                    image 'node:18'
-                    args '-u root'
-                }
-            }
             steps {
-                sh 'npm install'
-                sh 'npm run test'
+                sh '''
+                docker run --rm \
+                  -v $PWD:/app \
+                  -w /app \
+                  node:18 \
+                  sh -c "npm install && npm run test"
+                '''
             }
         }
 
